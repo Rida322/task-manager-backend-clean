@@ -4,20 +4,31 @@ const auth = require("../middleware/auth");
 const pool = require("../config/db");
 
 router.get("/", auth, async (req, res) => {
-  const [rows] = await pool.execute(
-    "SELECT * FROM tasks WHERE user_id=?",
-    [req.user.id]
-  );
-  res.json(rows);
+  try {
+    const result = await pool.query(
+      "SELECT * FROM tasks WHERE user_id=$1",
+      [req.user.id]
+    );
+    res.json(result.rows);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: err.message });
+  }
 });
 
 router.post("/", auth, async (req, res) => {
   const { title } = req.body;
-  await pool.execute(
-    "INSERT INTO tasks (user_id, title, status) VALUES (?, ?, 'pending')",
-    [req.user.id, title]
-  );
-  res.json({ message: "Task added" });
+
+  try {
+    await pool.query(
+      "INSERT INTO tasks (user_id, title, status) VALUES ($1, $2, $3)",
+      [req.user.id, title, "pending"]
+    );
+    res.json({ message: "Task added" });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: err.message });
+  }
 });
 
 module.exports = router;

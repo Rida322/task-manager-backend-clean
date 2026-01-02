@@ -30,5 +30,17 @@ router.post("/", auth, async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 });
+router.delete("/:id", auth, async (req, res) => {
+  try {
+    await pool.query(
+      "DELETE FROM tasks WHERE id = $1 AND user_id = $2",
+      [req.params.id, req.user.id]
+    );
+    res.json({ message: "Task deleted" });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: err.message });
+  }
+});
 
 module.exports = router;

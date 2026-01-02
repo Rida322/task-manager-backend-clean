@@ -15,3 +15,15 @@ exports.createTask = async (req, res) => {
   );
   res.json({ message: "Task added" });
 };
+exports.deleteTask = async (req, res) => {
+  try {
+    await pool.query(
+      "DELETE FROM tasks WHERE id = $1 AND user_id = $2",
+      [req.params.id, req.user.id]
+    );
+    res.json({ message: "Task deleted" });
+  } catch (err) {
+    res.status(500).json({ error: "Delete failed" });
+  }
+};
+

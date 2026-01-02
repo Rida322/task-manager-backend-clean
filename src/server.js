@@ -4,6 +4,8 @@ require("dotenv").config();
 
 const authRoutes = require("./routes/auth.routes");
 const taskRoutes = require("./routes/tasks.routes");
+const adminRoutes = require("./routes/admin.routes");
+
 
 const app = express();
 app.use(cors());
@@ -13,6 +15,7 @@ app.get("/", (req, res) => res.send("Task Manager Backend Running ✅"));
 
 app.use("/api/auth", authRoutes);
 app.use("/api/tasks", taskRoutes);
+app.use("/api/admin", adminRoutes);
 
 app.listen(process.env.PORT, () =>
   console.log("Server running on port", process.env.PORT)

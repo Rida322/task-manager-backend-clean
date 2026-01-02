@@ -24,15 +24,15 @@ exports.login = async (req, res) => {
   const { email, password } = req.body;
 
   try {
-    const result = await pool.query(
+    const { rows } = await pool.query(
       "SELECT * FROM users WHERE email=$1",
       [email]
     );
 
-    if (result.rows.length === 0)
+    if (!rows.length)
       return res.status(400).json({ message: "Invalid credentials" });
 
-    const user = result.rows[0];
+    const user = rows[0];
 
     const match = await bcrypt.compare(password, user.password);
     if (!match)
@@ -44,9 +44,14 @@ exports.login = async (req, res) => {
       { expiresIn: "7d" }
     );
 
-    res.json({ token });
+    res.json({
+      token,
+      role: user.role,   // 👈 SEND ROLE TO FRONTEND
+    });
+
   } catch (err) {
     console.error(err);
-    res.status(500).json({ message: err.message });
+    res.status(500).json({ message: "Login failed" });
   }
 };
+
